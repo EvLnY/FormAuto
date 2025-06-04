@@ -104,18 +104,18 @@
         }
 
         .session-frame {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 820px;
-            height: 480px;
-            border: none;
-            z-index: 1000;
-            background-color: var(--bg-color);
-            border-radius: 10px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
-        }
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 90vw;
+        height: 90vh;
+        border: none;
+        z-index: 10000;
+        background-color: var(--bg-color);
+        border-radius: 10px;
+        box-shadow: 0 4px 40px rgba(0, 0, 0, 0.8);
+    }
 
         .session-overlay {
             position: fixed;
@@ -127,23 +127,7 @@
             z-index: 999;
         }
 
-        .close-btn {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 1001;
-            padding: 0.5rem 1rem;
-            background-color: rgba(255, 68, 68, 0.8);
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 1rem;
-        }
-
-        .close-btn:hover {
-            background-color: rgba(255, 68, 68, 1);
-        }
+        
 
         .hidden {
             display: none;
@@ -405,72 +389,46 @@
         }
 
         function openSession() {
-            // Récupérer le titre de la session depuis l'URL
-            const urlParams = new URLSearchParams(window.location.search);
-            const sessionTitle = urlParams.get('session');
-            
-            // Créer l'overlay de fond
-            const overlay = document.createElement('div');
-            overlay.className = 'session-overlay';
-            overlay.onclick = closeSession; // Clic sur l'overlay pour fermer
-            
-            // Créer l'iframe pour la session avec UTF-8 explicite
-            const sessionFrame = document.createElement('iframe');
-            sessionFrame.className = 'session-frame';
-            sessionFrame.id = 'sessionFrame';
-            
-            // URL simple qui fonctionne en local
-            sessionFrame.src = `Prez.html?session=${encodeURIComponent(sessionTitle)}`;
-            
-            // Assurer l'encodage UTF-8 pour l'iframe après chargement
-            sessionFrame.onload = function() {
-                try {
-                    // Accéder au document de l'iframe pour forcer l'UTF-8
-                    const iframeDoc = sessionFrame.contentDocument || sessionFrame.contentWindow.document;
-                    if (iframeDoc) {
-                        // Vérifier et ajouter la balise meta charset si nécessaire
-                        let metaCharset = iframeDoc.querySelector('meta[charset]');
-                        if (!metaCharset) {
-                            metaCharset = iframeDoc.createElement('meta');
-                            metaCharset.setAttribute('charset', 'UTF-8');
-                            if (iframeDoc.head) {
-                                iframeDoc.head.insertBefore(metaCharset, iframeDoc.head.firstChild);
-                            }
-                        }
-                        
-                        // Ajouter également une balise meta http-equiv si elle n'existe pas
-                        let metaContentType = iframeDoc.querySelector('meta[http-equiv="Content-Type"]');
-                        if (!metaContentType) {
-                            metaContentType = iframeDoc.createElement('meta');
-                            metaContentType.setAttribute('http-equiv', 'Content-Type');
-                            metaContentType.setAttribute('content', 'text/html; charset=UTF-8');
-                            if (iframeDoc.head) {
-                                iframeDoc.head.appendChild(metaContentType);
-                            }
-                        }
-                        
-                        console.log('UTF-8 encoding applied to iframe');
-                    }
-                } catch (e) {
-                    // En local, cela devrait fonctionner, mais on gère les erreurs
-                    console.log('Cannot access iframe content:', e.message);
-                }
-            };
-            
-            // Créer le bouton de fermeture
-            // const closeBtn = document.createElement('button');
-            // closeBtn.className = 'close-btn';
-            // closeBtn.textContent = '✕ Fermer';
-            // closeBtn.onclick = closeSession;
-            
-            // Ajouter à la page
-            document.body.appendChild(overlay);
-            document.body.appendChild(sessionFrame);
-            document.body.appendChild(closeBtn);
-            
-            // Masquer le contenu principal
-            document.getElementById('messageContainer').classList.add('hidden');
-        }
+    const urlParams = new URLSearchParams(window.location.search);
+    const sessionTitle = urlParams.get('session');
+
+    // Conteneur général tout en haut
+    const topLayer = document.createElement('div');
+    topLayer.style.position = 'fixed';
+    topLayer.style.top = 0;
+    topLayer.style.left = 0;
+    topLayer.style.width = '100vw';
+    topLayer.style.height = '100vh';
+    topLayer.style.zIndex = '2147483647';
+    topLayer.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
+    topLayer.id = 'topLayerOverlay';
+
+    // Iframe flottante centrée
+    const sessionFrame = document.createElement('iframe');
+    sessionFrame.src = `Prez.html?session=${encodeURIComponent(sessionTitle)}`;
+    sessionFrame.style.position = 'absolute';
+    sessionFrame.style.top = '50%';
+    sessionFrame.style.left = '50%';
+    sessionFrame.style.transform = 'translate(-25%, -25%)';
+    sessionFrame.style.width = '90vw';
+    sessionFrame.style.height = '90vh';
+    sessionFrame.style.border = 'none';
+    sessionFrame.style.borderRadius = '12px';
+    sessionFrame.style.boxShadow = '0 4px 40px rgba(0,0,0,0.8)';
+    sessionFrame.style.backgroundColor = 'rgba(0, 0, 0, 0.48)';
+
+    // Fermer sur clic (optionnel)
+    topLayer.addEventListener('click', () => {
+        topLayer.remove();
+        document.getElementById('messageContainer').classList.remove('hidden');
+        autoOpenTriggered = false;
+        updateAccessStatus();
+    });
+
+    topLayer.appendChild(sessionFrame);
+    document.body.appendChild(topLayer);
+    document.getElementById('messageContainer').classList.add('hidden');
+}
 
         function closeSession() {
             // Supprimer l'iframe, l'overlay et le bouton
