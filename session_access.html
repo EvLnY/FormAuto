@@ -102,8 +102,8 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: var(--container-width);
-            height: var(--container-height);
+            width: 800px;
+            height: 460px;
             border: none;
             z-index: 1000;
             background-color: var(--bg-color);
@@ -343,13 +343,15 @@
             
             document.getElementById('messageContainer').classList.add('hidden');
 
-            // Gestion des messages postMessage pour le plein écran
             window.addEventListener('message', (event) => {
                 if (event.data === 'requestFullscreen') {
-                    sessionFrame.requestFullscreen?.() ||
-                    sessionFrame.webkitRequestFullscreen?.() ||
-                    sessionFrame.mozRequestFullScreen?.() ||
-                    sessionFrame.msRequestFullscreen?.();
+                    const frame = document.getElementById('sessionFrame');
+                    if (frame) {
+                        frame.requestFullscreen?.() ||
+                        frame.webkitRequestFullscreen?.() ||
+                        frame.mozRequestFullScreen?.() ||
+                        frame.msRequestFullscreen?.();
+                    }
                 }
             });
         }
