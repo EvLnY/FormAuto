@@ -6,7 +6,7 @@
     <title>Présentation</title>
     <style>
         :root {
-            --container-width: 580px;
+            --container-width: 800px;
             --container-height: 460px;
             --chat-width: 220px;
             --bg-color: #1e1e1e;
@@ -280,8 +280,22 @@
         }
 
         function toggleFullScreen() {
-            // Envoyer un message au parent pour demander le plein écran
-            window.parent.postMessage('requestFullscreen', '*');
+            if (window.parent !== window) {
+                window.parent.postMessage('requestFullscreen', '*');
+            } else {
+                const container = document.getElementById('container');
+                if (!document.fullscreenElement) {
+                    container.requestFullscreen?.() ||
+                    container.webkitRequestFullscreen?.() ||
+                    container.mozRequestFullScreen?.() ||
+                    container.msRequestFullscreen?.();
+                } else {
+                    document.exitFullscreen?.() ||
+                    document.webkitExitFullscreen?.() ||
+                    document.mozCancelFullScreen?.() ||
+                    document.msExitFullscreen?.();
+                }
+            }
         }
 
         function setupFullscreenChat() {
@@ -336,7 +350,6 @@
             container.classList.remove('no-scroll');
         }
 
-        // Gestionnaires d'événements
         document.getElementById('fullscreenBtn').addEventListener('click', toggleFullScreen);
 
         document.getElementById('chatFrame').addEventListener('mouseenter', () => {
@@ -379,7 +392,6 @@
             }
         });
 
-        // Initialisation
         initializeVideo();
     </script>
 </body>
